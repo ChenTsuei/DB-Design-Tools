@@ -39,7 +39,6 @@ hasRExt fs f@(alpha, beta) =
 hasExt :: Ord a => Set (FD a) -> FD a -> Bool
 hasExt fs f = hasLExt fs f || hasRExt fs f
 
-
 canonCover :: Ord a => Set (FD a) -> Set (FD a)
 canonCover fs
   | null exts = gs
