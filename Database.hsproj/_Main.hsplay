@@ -1,0 +1,11 @@
+-- Haskell Playground 1.0
+imply a b = (Set.fromList a, Set.fromList b)
+
+fs = (Set.fromList ["A"  `imply` "B",
+                    "B"  `imply` "CD",
+                    "E" `imply` "F"])
+
+rs = (Set.fromList [Set.fromList "ABCE",
+                    Set.fromList "EBD"])
+
+dependPreserve fs rs
