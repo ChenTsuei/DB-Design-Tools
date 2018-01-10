@@ -19,6 +19,16 @@ attrClosure alpha fs
   where new = Set.union alpha $ Set.unions . Set.toAscList
                 $ Set.map snd . restrict alpha $ fs
 
+powerSet' :: [a] -> [[a]]
+powerSet' [] = [[]]
+powerSet' (x:xs) = map (x:) (powerSet' xs) ++ powerSet' xs
+
+powerSet :: Ord a => Set a -> Set (Set a)
+powerSet = Set.fromList . map Set.fromList . powerSet' . Set.toAscList
+
+reflexRule'' :: Ord a => FD a -> Set (FD a)
+reflexRule'' (alpha, _) = Set.map (\beta -> (alpha, beta)) (powerSet alpha)
+
 -- Merge all the alpha -> beta1, alpha -> beta2 to alpha -> beta1 beta2
 unionRule :: Ord a => Set (FD a) -> Set (FD a)
 unionRule = Set.fromList . map merge . groupByFst
@@ -67,8 +77,27 @@ canonCover fs
 
 -- Check whether a decomposion of a Function Dependency set is dependency preserving
 dependPreserve :: Ord a => Set (FD a) -> Set (Set a) -> Bool
-dependPreserve fs rs = Set.foldl (\acc (alpha, beta) -> acc 
-                                    && (Set.isSubsetOf beta $ loop alpha)) True fs
+dependPreserve fs rs = 
+  Set.foldl (\acc (alpha, beta) -> acc 
+    && (Set.isSubsetOf beta $ loop alpha)) True fs
   where loop alpha = if alpha == new then alpha else loop new
           where new = Set.foldl (\acc r -> Set.union acc 
-                                   $ Set.intersection r $ attrClosure (Set.intersection acc r) fs) alpha rs
+                  $ Set.intersection r $ attrClosure (Set.intersection acc r) fs) alpha rs
+
+attrs' :: Ord a => FD a -> Set a
+attrs' (alpha, beta) = Set.union (aux alpha) (aux beta)
+  where aux = Set.fromDistinctAscList . Set.toAscList
+
+attrs :: Ord a => Set (FD a) -> Set a
+attrs = Set.unions . map attrs' . Set.toAscList
+
+-- funsClosure :: Ord a => Set (FD a) => Set (FD a)
+-- funsClosure fs = 
+--   where att = attrs fs
+
+-- toBCNF :: Ord a => Set (FD a) -> Set (Set a)
+
+
+
+
+
